@@ -1,0 +1,15 @@
+$kind: collection
+name: 'Django JWT Auth API'
+description: |-
+  Collection for the Django REST Framework JWT authentication API.
+  Covers user registration, token obtain (login), and token refresh endpoints.
+variables:
+  - key: base_url
+    value: 'http://127.0.0.1:8000'
+    description: 'Base URL of the Django development server'
+  - key: access_token
+    value: ''
+    description: 'JWT access token — auto-populated by the Login request script'
+  - key: refresh_token
+    value: ''
+    description: 'JWT refresh token — auto-populated by the Login request script'

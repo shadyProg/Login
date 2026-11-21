@@ -1,0 +1,23 @@
+$kind: http-request
+url: https://virtserver.swaggerhub.com/alexandriauniversity-b92/auth/1.0.0/api/register/
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: username
+      value: abdul
+      disabled: false
+    - type: text
+      key: password
+      value: "1234"
+      disabled: false
+    - type: text
+      key: email
+      value: test5@example.com
+      disabled: false
+    - type: text
+      key: phone_number
+      value: "12345"
+      disabled: true
+order: 1793740302298
