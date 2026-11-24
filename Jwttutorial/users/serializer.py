@@ -13,8 +13,10 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
 
         'username': {'required':True ,'allow_blank':False}, # required for must full  
-        'email' : {'required':True ,'allow_blank':False , 'unique':True}, # unique for email
-        'password' : {'required':True ,'allow_blank':False,'min_length':8}
+        'email' : {'required':True ,'allow_blank':False }, # unique for email
+        'password' : {'required':True ,'allow_blank':False,'min_length':8},
+        'phone_number' : {'required':False ,}, # unique for phone number
+        
 
         }
 
