@@ -10,6 +10,13 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email' , 'password' , 'phone_number' )
+        extra_kwargs = {
+
+        'username': {'required':True ,'allow_blank':False}, # required for must full  
+        'email' : {'required':True ,'allow_blank':False , 'unique':True}, # unique for email
+        'password' : {'required':True ,'allow_blank':False,'min_length':8}
+
+        }
 
 
 class LoginSerializer(serializers.Serializer):
