@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-lq8r1rsxd2v#!ffr)ju#pl6d-%aj8flbx22_j@ovo*t6*zchlb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -114,8 +114,11 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=3),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
+    'BLACKLIST_AFTER_ROTATION':True,# علشان لما تغير التوكن النوكن القديم ميخشش بيه
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
 }
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Authentication API',

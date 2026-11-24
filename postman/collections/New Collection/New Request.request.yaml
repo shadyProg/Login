@@ -1,4 +1,5 @@
 $kind: http-request
+description: 'Registers a new user account. Accepts a username, email, and password in the request body. On success (201 Created), returns a JWT access token and a refresh token that can be used for authenticated requests.'
 url: https://virtserver.swaggerhub.com/alexandriauniversity-b92/auth/1.0.0/api/register/
 method: POST
 body:

@@ -18,9 +18,10 @@ class User(AbstractUser):
         editable=False
     )
     
-    #TODO should be not unique because two users can have the same name. We can use the username field as a unique identifier for the user instead of the name field. The username field is already unique by default in Django's AbstractUser model.
+    #NOTE: The username field is already unique by default in Django's AbstractUser model.
     #! no  is not True
-    # that username for accont not really name , if you want to add name field you can add it as a separate field and make it not unique.
+    # that username for account not really name , if you want to add name field you can add it as a separate field and make it not unique.
+    # that also know as firstname and lastname isnot unique by default in Django's AbstractUser model.
     email = models.EmailField(
         unique=True
     )

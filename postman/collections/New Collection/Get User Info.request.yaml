@@ -1,0 +1,9 @@
+$kind: http-request
+name: 'Get User Info'
+description: 'Retrieves the authenticated user''s profile information. Requires a valid JWT access token passed as a Bearer token in the Authorization header. Returns the user''s username, email, and phone number.'
+url: 'http://127.0.0.1:8000/api/userinfo/'
+method: GET
+headers:
+  - key: Authorization
+    value: 'Bearer {{access_token}}'
+order: 1793740302299
