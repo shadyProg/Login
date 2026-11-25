@@ -140,12 +140,18 @@ SPECTACULAR_SETTINGS = {
     },
     'SECURITY': [{'BearerAuth': []}],
 }
-
+# Email configuration
 ANYMAIL = {
     "MAILTRAP_API_TOKEN": env("MAILTRAP_API_TOKEN"),
+    "MAILTRAP_SANDBOX_ID": env("MAILTRAP_SANDBOX_ID"),
 }
 EMAIL_BACKEND = "anymail.backends.mailtrap.EmailBackend"
 DEFAULT_FROM_EMAIL = "hello@demomailtrap.co"
+
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = '2525'  
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
