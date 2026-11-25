@@ -12,11 +12,17 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
+import environ
+
+env = environ.Env()
+
+# Load environment variables from .env
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+env.read_env(BASE_DIR / ".env.var")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -135,6 +141,11 @@ SPECTACULAR_SETTINGS = {
     'SECURITY': [{'BearerAuth': []}],
 }
 
+ANYMAIL = {
+    "MAILTRAP_API_TOKEN": env("MAILTRAP_API_TOKEN"),
+}
+EMAIL_BACKEND = "anymail.backends.mailtrap.EmailBackend"
+DEFAULT_FROM_EMAIL = "hello@demomailtrap.co"
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
