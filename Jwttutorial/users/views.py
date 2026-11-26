@@ -1,10 +1,12 @@
 import datetime
-
-from django.core.mail import send_mail
+import token
+from django.shortcuts import get_object_or_404
+from django.core.mail import send_mail ,EmailMessage
+from django.conf import settings
 from rest_framework.views import APIView # for class based view
 from rest_framework.decorators import api_view, permission_classes # for function based view
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import request, status
 from .serializer import LoginSerializer, UserSerializer
 from .models import User
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -12,6 +14,10 @@ from rest_framework.permissions import AllowAny , IsAuthenticated
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
+from django.utils.crypto import get_random_string
+from django.utils import timezone
+from datetime import timedelta
+
 
 # Create your views here.
 class RegisterView(APIView):
@@ -176,41 +182,82 @@ def update_user(request):
     return Response(serializer.data)
 
 
-# def get_current_host(request):
-#     protocol = request.is_secure() and 'https' or 'http'
-#     host = request.get_host()
-#     return "{protocol}://{host}/".format(protocol=protocol, host=host)
+def get_current_host(request):
+    protocol = request.is_secure() and 'https' or 'http'
+    host = request.get_host()
+    return "{protocol}://{host}/".format(protocol=protocol, host=host)
 
 
-# @api_view(['POST'])
-# def forgot_password(request):
-#     data = request.data
-#     user = get_object_or_404(User,email=data['email'])
-#     token = get_random_string(40)
-#     expire_date = datetime.now() + datetime.timedelta(minutes=30)
-#     user.profile.reset_password_token = token
-#     user.profile.reset_password_expire = expire_date
-#     user.profile.save()
+@api_view(['POST'])
+def forgot_password(request):
+    data = request.data
+    user = get_object_or_404(User,email=data['email'])
+    token = get_random_string(40)
+    expire_date = timezone.now() + datetime.timedelta(minutes  =30)
+    user.profile.reset_password_token = token
+    user.profile.reset_password_expire = expire_date
+    user.profile.save()
     
-#     host = get_current_host(request)
-#     link = "http://localhost:8000/api/reset_password/{token}".format(token=token)
-#     body = "Your password reset link is : {link}".format(link=link)
-#     send_mail(
-#         "Password reset from eMarket",
-#         body,
-#         "eMarket@gmail.com",
-#         [data['email']]
-#     )
-#     return Response({'details': 'Password reset sent to {email}'.format(email=data['email'])})
+    # host = get_current_host(request)
+    # link = "{host}/api/reset_password/{token}".format(token=token, host=host)
+    # link = "http://localhost:8000/api/reset_password/{token}".format(token=token)
+    # body = "Your password reset link is : {link}".format(link=link)
 
-    
+    # link = request.build_absolute_uri(
+    # f"/api/reset_password/{token}"    
+    # )
+    # body = f"Your password reset link is: {link}"
+
+    # send_mail(
+    #     "Password reset from locallink",
+    #     body,
+    #     settings.DEFAULT_FROM_EMAIL,
+    #     [data['email']]
+    # )
+
+
+    # Then send your email, e.g. from a view
+
+    link = request.build_absolute_uri(
+        f"/api/reset_password/{token}"
+    )
+
+    body = (
+        f"Hello {user.username},\n\n"
+        f"You requested to reset your password.\n\n"
+        f"Click the link below to reset your password:\n"
+        f"{link}\n\n"
+        f"This link expires in 30 minutes."
+    )
+
+    message = EmailMessage(
+        subject="Password Reset - locallink ",
+        body=body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[user.email],
+        reply_to=["support@example.com"],
+    )
+
+    message.esp_extra = {
+        "category": "Password Reset",
+        "custom_variables": {
+            "user_id": str(user.id),
+            "email_type": "password_reset",
+        },
+    }
+
+    message.send()
+
+    return Response({'details': 'Password reset sent to {email}'.format(email=data['email'])})
+
+
 
 # @api_view(['POST'])
 # def reset_password(request,token):
 #     data = request.data
 #     user = get_object_or_404(User,profile__reset_password_token = token)
 
-#     if user.profile.reset_password_expire.replace(tzinfo=None) < datetime.now():
+    #     if user.profile.reset_password_expire < timezone.now():
 #         return Response({'error': 'Token is expired'},status=status.HTTP_400_BAD_REQUEST)
     
 #     if data['password'] != data['confirmPassword']:
