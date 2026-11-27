@@ -2,4 +2,5 @@ adminfile.txt
 .env.var
 .env.*
 .env
+/Jwttutorial/.env.var
 problems.md

@@ -179,3 +179,14 @@ MAILTRAP_API_TOKEN
 لو بتستخدم Docker، تقدر تمرر المتغير من ملف `.env` باستخدام `docker compose`، مع التأكد من عدم تضمين الملف في الـ image أو رفعه إلى GitHub.
 
 **الخلاصة:** خلي `settings.py` يحتوي على أسماء الإعدادات وطريقة قراءتها، وخلي الـ API Keys في Environment Variables أو Secret Manager. دي طريقة منظمة وآمنة وقابلة للتوسع لما يكون عندك أكتر من API Key، زي Mailtrap وJWT وDatabase credentials.
+---
+### in model 
+we add this 
+```python 
+#NOTE: علشان لما تعمل register لل user جديد يعمل profile جديد ليه اوتوماتيك
+@receiver(post_save, sender=User)
+def save_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+```

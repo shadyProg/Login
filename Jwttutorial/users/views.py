@@ -7,17 +7,18 @@ from rest_framework.views import APIView # for class based view
 from rest_framework.decorators import api_view, permission_classes # for function based view
 from rest_framework.response import Response
 from rest_framework import request, status
-from .serializer import LoginSerializer, UserSerializer
+from .serializer import LoginSerializer, ResetPasswordSerializer, UserSerializer
 from .models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny , IsAuthenticated
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.utils.crypto import get_random_string
 from django.utils import timezone
-from datetime import timedelta
-
+import datetime
 
 # Create your views here.
 class RegisterView(APIView):
@@ -189,7 +190,35 @@ def get_current_host(request):
 
 
 @api_view(['POST'])
+@extend_schema(
+    operation_id='forgot_password',
+    tags=['Authentication'],
+    summary='Request password reset',
+    description='Send a password reset link to the user email.',
+    request=inline_serializer(
+        name='ForgotPasswordRequest',
+        fields={
+            'email': serializers.EmailField(),
+        },
+    ),
+    responses={
+        200: inline_serializer(
+            name='ForgotPasswordResponse',
+            fields={
+                'message': serializers.CharField(),
+            },
+        ),
+        400: inline_serializer(
+            name='ForgotPasswordErrorResponse',
+            fields={
+                'error': serializers.CharField(),
+            },
+        ),
+    },
+    auth=[],
+)
 def forgot_password(request):
+
     data = request.data
     user = get_object_or_404(User,email=data['email'])
     token = get_random_string(40)
@@ -217,7 +246,7 @@ def forgot_password(request):
 
 
     # Then send your email, e.g. from a view
-
+    #? بدل ال get host ب request.build_absolute_uri() عشان يجيب ال host من ال request نفسه بدل ما يكون ثابت
     link = request.build_absolute_uri(
         f"/api/reset_password/{token}"
     )
@@ -248,24 +277,65 @@ def forgot_password(request):
 
     message.send()
 
+
+    
     return Response({'details': 'Password reset sent to {email}'.format(email=data['email'])})
 
 
 
-# @api_view(['POST'])
-# def reset_password(request,token):
-#     data = request.data
-#     user = get_object_or_404(User,profile__reset_password_token = token)
+@api_view(['POST'])
+@extend_schema(
+    operation_id='reset_password',
+    tags=['Authentication'],
+    summary='Reset user password',
+    description='Reset the user password using a valid reset token.',
+    request=inline_serializer(
+        name='ResetPasswordRequest',
+        fields={
+            'token': serializers.CharField(),
+            'password': serializers.CharField(min_length=8),
+        },
+    ),
+    responses={
+        200: inline_serializer(
+            name='ResetPasswordResponse',
+            fields={
+                'message': serializers.CharField(),
+            },
+        ),
+        400: inline_serializer(
+            name='ResetPasswordErrorResponse',
+            fields={
+                'error': serializers.CharField(),
+            },
+        ),
+    },
+    auth=[],
+)
+def reset_password(request,token):
+    data = request.data
+    user = get_object_or_404(User,profile__reset_password_token = token)
+    #? compare the expire date with the current date and time to check if the token is expired or not
+    if user.profile.reset_password_expire < timezone.now():
+        return Response({'error': 'Token is expired'},status=status.HTTP_400_BAD_REQUEST)
+    
+    if data['password'] != data['confirmPassword']:
+        return Response({'error': 'Password are not same'},status=status.HTTP_400_BAD_REQUEST)
+    #! لازم يعدي على سيليزي علشان يتاكد من باسورد هيتخزن صح و يطبق ال validation rules بتاعته
+    #? اظن كدانا اتخليت عن مبدا dRY علشان كررت في validate_password و make_password في ال register view و reset password view. ممكن اعمل function helper عشان اعمل validate و make password و ارجع ال user object بعد ما اعمله save.
+    # try:
+    #     validate_password(data['password'], user)
+    # except ValidationError:
+    #     return Response({'error': 'Password is not valid'},status=status.HTTP_400_BAD_REQUEST)
+    serializer = ResetPasswordSerializer(data={'new_password': data['password']})
+    serializer.is_valid(raise_exception=True)
 
-    #     if user.profile.reset_password_expire < timezone.now():
-#         return Response({'error': 'Token is expired'},status=status.HTTP_400_BAD_REQUEST)
-    
-#     if data['password'] != data['confirmPassword']:
-#         return Response({'error': 'Password are not same'},status=status.HTTP_400_BAD_REQUEST)
-    
-#     user.password = make_password(data['password'])
-#     user.profile.reset_password_token = ""
-#     user.profile.reset_password_expire = None 
-#     user.profile.save() 
-#     user.save()
-#     return Response({'details': 'Password reset done '})
+    new_password = serializer.validated_data["new_password"]
+    user.password = make_password(new_password)
+    # user.set_password(new_password)
+    user.save()
+    user.profile.reset_password_token = ""
+    user.profile.reset_password_expire = None 
+    user.profile.save() 
+    user.save()
+    return Response({'details': 'Password reset done '})
