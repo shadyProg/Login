@@ -65,3 +65,22 @@ class LoginSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+def validate_password_length(password):
+    if len(password) < 8:
+        return False
+
+    return True
+
+class ResetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField()
+    
+    def validate_new_password(self, value):
+        if not validate_password_length(value):
+            raise serializers.ValidationError(
+                "Password must be at least 8 characters long."
+            )
+
+        return value
+# class ResetPasswordSerializer(serializers.Serializer):
+#     new_password = serializers.CharField(min_length=8)

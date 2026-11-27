@@ -12,11 +12,17 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
+import environ
+
+env = environ.Env()
+
+# Load environment variables from .env
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+env.read_env(BASE_DIR / ".env.var" )
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -43,6 +49,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'rest_framework_simplejwt',
     'users.apps.UsersConfig',
+    "anymail",
 ]
 #TODO what we can do is to add the authentication classes to the REST_FRAMEWORK settings in your Django settings file. This will ensure that the JWT authentication is used for your API views.
 
@@ -134,6 +141,20 @@ SPECTACULAR_SETTINGS = {
     },
     'SECURITY': [{'BearerAuth': []}],
 }
+# Email configuration
+ANYMAIL = {
+    "MAILTRAP_API_TOKEN": env("MAILTRAP_API_TOKEN"),
+    "MAILTRAP_SANDBOX_ID": env("MAILTRAP_SANDBOX_ID"),
+}
+EMAIL_BACKEND = "anymail.backends.mailtrap.EmailBackend"
+DEFAULT_FROM_EMAIL = "hello@demomailtrap.co"
+
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = '2525'  
+EMAIL_USE_TLS = False #NOTE : use it in real project and use SSL in production  and i true by default in production but for testing you can use TLS or SSL depending on your email provider's requirements
+EMAIL_USE_SSL = False
 
 
 # Internationalization
