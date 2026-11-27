@@ -205,9 +205,6 @@ class RegisterView(APIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
 @extend_schema(
     operation_id='users_resend_otp_create',
     tags=['Authentication'],
@@ -235,6 +232,8 @@ class RegisterView(APIView):
     },
     auth=[],
 )
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def resend_otp(request):
     serializer = ResendOtpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -251,8 +250,7 @@ def resend_otp(request):
         status=status.HTTP_200_OK,
     )
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
+
 @extend_schema(
     operation_id='users_verify_email_create',
     tags=['Authentication'],
@@ -322,6 +320,9 @@ def resend_otp(request):
     ],
     auth=[],
 )
+@api_view(['POST'])
+@permission_classes([AllowAny])
+
 def verify_email(request):
     serializer = EmailVerificationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -493,8 +494,6 @@ class LoginView(APIView):
             'access': str(refresh.access_token),
         }, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
 @extend_schema(
     operation_id='users_current_retrieve',
     tags=['User'],
@@ -554,6 +553,9 @@ class LoginView(APIView):
         ),
     ],
 )
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+
 def current_user(request):
     
     user = UserSerializer(request.user, many=False)
@@ -581,8 +583,6 @@ def get_current_host(request):
     host = request.get_host()
     return "{protocol}://{host}/".format(protocol=protocol, host=host)
 
-
-@api_view(['POST'])
 @extend_schema(
     operation_id='forgot_password',
     tags=['Password Reset'],
@@ -647,6 +647,8 @@ def get_current_host(request):
     ],
     auth=[],
 )
+@api_view(['POST'])
+
 def forgot_password(request):
 
     data = request.data
@@ -712,8 +714,6 @@ def forgot_password(request):
     return Response({'details': 'Password reset sent to {email}'.format(email=data['email'])})
 
 
-
-@api_view(['POST'])
 @extend_schema(
     operation_id='reset_password',
     tags=['Password Reset'],
@@ -826,6 +826,8 @@ def forgot_password(request):
     ],
     auth=[],
 )
+@api_view(['POST'])
+
 def reset_password(request,token):
     data = request.data
     user = get_object_or_404(User,profile__reset_password_token = token)
