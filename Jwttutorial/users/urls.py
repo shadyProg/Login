@@ -5,13 +5,23 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import RegisterView, LoginView , current_user ,forgot_password, reset_password #forgot_password, reset_password
+from .views import (
+    LoginView,
+    RegisterView,
+    current_user,
+    forgot_password,
+    reset_password,
+    verify_email,
+    resend_otp,
+)
 
 
 app_name = 'users'
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
+    path('verify-email/', verify_email, name='verify_email'),
+    path('resend_otp/', resend_otp, name='resend_otp'),
     path('login/', LoginView.as_view(), name='login'),
     path('userinfo/', current_user,name='user_info'), 
     #path('userinfo/update/', update_user,name='update_user'), 

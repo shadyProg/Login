@@ -190,3 +190,10 @@ def save_profile(sender, instance, created, **kwargs):
         Profile.objects.create(user=instance)
 
 ```
+
+---
+## data base 
+[27/Nov/2026 17:43:23] "POST /api/register/ HTTP/1.1" 500 231905
+لما كنت فاتح داتا بيز وعملت  create user 
+حصل الخطا ده بس رجعلي في response ان user created scussefuly 
+كدا معنا لازم بعد كدا نعمل checkمن داتا بيز ان يوزر فعلا اتعمل 

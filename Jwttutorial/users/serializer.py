@@ -48,6 +48,10 @@ class LoginSerializer(serializers.Serializer):
                 user = email_matches[0]
 
         if user is not None:
+            if not user.is_active:
+                raise AuthenticationFailed(
+                    'Account is inactive. Verify your email before logging in.'
+                )
             user = authenticate(
                 request=request,
                 username=user.get_username(),
@@ -65,6 +69,16 @@ class LoginSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class EmailVerificationSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.RegexField(regex=r'^\d{5}$')
+
+
+class ResendOtpSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
 
 def validate_password_length(password):
     if len(password) < 8:

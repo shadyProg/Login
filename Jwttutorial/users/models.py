@@ -29,6 +29,10 @@ class User(AbstractUser):
         unique=True
     )
 
+    is_active = models.BooleanField(default=False)
+    email_verification_code = models.CharField(max_length=128, blank=True)
+    email_verification_code_expires_at = models.DateTimeField(null=True, blank=True)
+
     phone_number = models.CharField(
         max_length=13,
         unique=True,
